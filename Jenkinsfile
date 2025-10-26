@@ -24,7 +24,7 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                bat 'pip install pytest'   // make sure pytest is installed
+                bat 'pip install pytest'
                 bat 'pytest'
             }
         }
@@ -32,8 +32,9 @@ pipeline {
 
     post {
         always {
-            // optional: only if you generate JUnit XML test results
-            // junit '**/test-results.xml'
+            steps {
+                echo "Pipeline finished."
+            }
         }
     }
 }
