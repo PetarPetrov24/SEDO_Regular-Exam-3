@@ -8,31 +8,37 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Restore Dependencies') {
             steps {
-                bat 'python -m pip install --upgrade pip'
-                bat 'pip install -r requirements.txt'
+                // Restores all NuGet packages
+                bat 'dotnet restore'
             }
         }
 
-        stage('Lint') {
+        stage('Build') {
             steps {
-                bat 'pip install flake8'
-                bat 'flake8 .'
+                bat 'dotnet build --no-restore'
+            }
+        }
+
+        stage('Lint / Code Analysis') {
+            steps {
+                // Optional: use dotnet format for linting
+                bat 'dotnet tool install -g dotnet-format || echo "Already installed"'
+                bat 'dotnet format --verify-no-changes'
             }
         }
 
         stage('Run Tests') {
             steps {
-                bat 'pip install pytest'
-                bat 'pytest'
+                bat 'dotnet test --logger "trx;LogFileName=test-results.trx"'
             }
         }
     }
 
     post {
         always {
-            echo "Pipeline finished."   // no 'steps' block here
+            echo "Pipeline finished."
         }
     }
 }
