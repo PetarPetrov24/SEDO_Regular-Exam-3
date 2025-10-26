@@ -1,42 +1,39 @@
 pipeline {
-    agent any  // run on any available Jenkins agent
-
-    triggers {
-        pollSCM('* * * * *')  // optional: polls Git repo every minute; for webhooks you can skip this
-    }
+    agent any
 
     stages {
         stage('Checkout') {
             steps {
-                // Clone repo and checkout main branch
                 git branch: 'main', url: 'https://github.com/PetarPetrov24/SEDO_Regular-Exam-3'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'python -m venv venv'
-                sh './venv/bin/pip install --upgrade pip'
-                sh './venv/bin/pip install -r requirements.txt'
+                bat 'pip install --upgrade pip'
+                bat 'pip install -r requirements.txt'
             }
         }
 
         stage('Lint') {
             steps {
-                sh './venv/bin/flake8 .'
+                bat 'pip install flake8'
+                bat 'flake8 .'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh './venv/bin/pytest'
+                bat 'pip install pytest'   // make sure pytest is installed
+                bat 'pytest'
             }
         }
     }
 
     post {
         always {
-            junit '**/test-results.xml'  // optional: if using JUnit-style test results
+            // optional: only if you generate JUnit XML test results
+            // junit '**/test-results.xml'
         }
     }
 }
